@@ -27,16 +27,16 @@ local function gs(a)
 end
 
 -- // Variables
-local players, http, runservice, inputservice, tweenService, stats = gs('Players'), gs('HttpService'), gs('RunService'), gs('UserInputService'), gs('TweenService'), gs('Stats')
+local players, http, runservice, inputservice, tweenService, stats, actionservice = gs('Players'), gs('HttpService'), gs('RunService'), gs('UserInputService'), gs('TweenService'), gs('Stats'), gs('ContextActionService')
 local localplayer = players.LocalPlayer
 
 local floor, ceil, huge, pi, clamp = math.floor, math.ceil, math.huge, math.pi, math.clamp
 local c3new, fromrgb, fromhsv = Color3.new, Color3.fromRGB, Color3.fromHSV
 local next, newInstance, newUDim2, newVector2 = next, Instance.new, UDim2.new, Vector2.new
-local isexecutorclosure = isexecutorclosure or is_synapse_function or is_sirhurt_closure;
+local isexecutorclosure = isexecutorclosure or is_synapse_function or is_sirhurt_closure or iskrnlclosure;
 local executor = (
     syn and 'syn' or
-    getexecutorname() or
+    getexecutorname and getexecutorname() or
     'unknown'
 )
 
@@ -75,7 +75,6 @@ local library = {
     };
     numberStrings = {['Zero'] = 0, ['One'] = 1, ['Two'] = 2, ['Three'] = 3, ['Four'] = 4, ['Five'] = 5, ['Six'] = 6, ['Seven'] = 7, ['Eight'] = 8, ['Nine'] = 9};
     signal = loadstring(game:HttpGet('https://raw.githubusercontent.com/tatar0071/IonHub/main/Modules/signal.lua'))();
-    mouseBehavior = inputservice.MouseBehavior;
     open = false;
     opening = false;
     hasInit = false;
@@ -115,6 +114,19 @@ local blacklistedKeys = {
 	Enum.KeyCode.Slash,
 	Enum.KeyCode.Tab,
 	Enum.KeyCode.Escape
+}
+
+local whitelistedBoxKeys = {
+    Enum.KeyCode.Zero,
+    Enum.KeyCode.One,
+    Enum.KeyCode.Two,
+    Enum.KeyCode.Three,
+    Enum.KeyCode.Four,
+    Enum.KeyCode.Five,
+    Enum.KeyCode.Six,
+    Enum.KeyCode.Seven,
+    Enum.KeyCode.Eight,
+    Enum.KeyCode.Nine,
 }
 
 local keyNames = {
@@ -387,24 +399,26 @@ do
         }
 
         function drawing:Update()
-            if drawing.Parent then
-                local parent = library.drawings[drawing.Parent.Object]
-                local parentSize,parentPos
-                if parent then
+            -- if drawing.Parent then
+                local parent = drawing.Parent ~= nil and library.drawings[drawing.Parent.Object] or nil
+                local parentSize,parentPos,parentVis = workspace.CurrentCamera.ViewportSize, Vector2.new(0,0), true;
+                if parent ~= nil then
                     parentSize = (parent.Class == 'Square' or parent.Class == 'Image') and parent.Object.Size or parent.Class == 'Text' and parent.TextBounds or workspace.CurrentCamera.ViewportSize
                     parentPos = parent.Object.Position
+                    parentVis = parent.Object.Visible
                 end
 
                 if drawing.Class == 'Square' or drawing.Class == 'Image' then
                     drawing.Object.Size = typeof(drawing.Size) == 'Vector2' and drawing.Size or typeof(drawing.Size) == 'UDim2' and utility:UDim2ToVector2(drawing.Size,parentSize)
                 end
-                if parent then
+
+                if drawing.Class == 'Square' or drawing.Class == 'Image' or drawing.Class == 'Circle' or drawing.Class == 'Text' then
                     drawing.Object.Position = parentPos + (typeof(drawing.Position) == 'Vector2' and drawing.Position or utility:UDim2ToVector2(drawing.Position,parentSize))
                 end
 
-                drawing.Object.Visible = (drawing.Parent.Object.Visible and drawing.Visible) and true or false
+                drawing.Object.Visible = (parentVis and drawing.Visible) and true or false
 
-            end
+            -- end
             drawing:UpdateChildren()
         end
 
@@ -641,32 +655,23 @@ function library:init()
         end
     end
 
-    if not getgenv().realBehavior then
-        getgenv().realBehavior = inputservice.MouseBehavior;
-    end
-    local index; index = hookmetamethod(inputservice, '__index', function(obj, idx)
-        if not checkcaller() and idx == 'MouseBehavior' and self.open then
-            return realBehavior
-        end
-        return index(obj, idx);
-    end)
-
-    local newindex; newindex = hookmetamethod(inputservice, '__newindex', function(obj, idx, val)
-        if not checkcaller() and idx == 'MouseBehavior' then
-            realBehavior = val;
-            if self.open then
-                val = Enum.MouseBehavior.Default;
-            end
-        end
-        return newindex(obj, idx, val);
-    end)
+    local screenGui = Instance.new('ScreenGui');
+    if syn then syn.protect_gui(screenGui); end
+    screenGui.Parent = game:GetService('CoreGui');
+    screenGui.Enabled = true;
+    utility:Instance('ImageButton', {
+        Parent = screenGui,
+        Visible = true,
+        Modal = true,
+        Size = UDim2.new(1,0,1,0),
+        ZIndex = 9999999999,
+        Transparency = 1;
+    })
 
     local namecall; namecall = hookmetamethod(game, '__namecall', function(obj, ...)
-
         if getnamecallmethod() == 'Destroy' and library.instances[obj] ~= nil then
             library.instances[obj] = nil;
         end
-
         return namecall(obj, ...)
     end)
 
@@ -758,16 +763,19 @@ function library:init()
     
     function self:SetOpen(bool)
         self.open = bool;
-        inputservice.MouseBehavior = bool and Enum.MouseBehavior.Default or realBehavior;
+        screenGui.Enabled = bool;
 
-        if bool then
-            utility:DisableConnections(inputservice.InputBegan, true);
-            utility:DisableConnections(inputservice.InputEnded, true);
-            utility:DisableConnections(inputservice.InputChanged, true);
+        if bool and library.flags.disablemenumovement then
+            actionservice:BindAction(
+                'FreezeMovement',
+                function()
+                    return Enum.ContextActionResult.Sink
+                end,
+                false,
+                unpack(Enum.PlayerActions:GetEnumItems())
+            )
         else
-            utility:EnableConnections(inputservice.InputBegan, true);
-            utility:EnableConnections(inputservice.InputEnded, true);
-            utility:EnableConnections(inputservice.InputChanged, true);
+            actionservice:UnbindAction('FreezeMovement');
         end
 
         updateCursor();
@@ -3468,7 +3476,6 @@ function library:init()
                     function color:SetColor(c3, nocallback)
                         if typeof(c3) == 'Color3' then
                             local h,s,v = c3:ToHSV(); c3 = fromhsv(h, clamp(s,.005,.995), clamp(v,.005,.995));
-                            print(c3)
                             self.color = c3;
                             self.objects.background.Color = c3;
                             if not nocallback then
@@ -3676,8 +3683,9 @@ function library:init()
                             elseif inp.KeyCode == Enum.KeyCode.Backspace then
                                 input = input:sub(1,-2);
                                 self.objects.inputText.Text = input;
-                            elseif #inp.KeyCode.Name == 1 or inp.KeyCode.Name ==  'Space' then
-                                local keyString = inp.KeyCode.Name == 'Space' and ' ' or inp.KeyCode.Name
+                            elseif #inp.KeyCode.Name == 1 or table.find(whitelistedBoxKeys, inp.KeyCode) or inp.KeyCode.Name ==  'Space' then
+                                local wlIdx = table.find(whitelistedBoxKeys, inp.KeyCode)
+                                local keyString = inp.KeyCode.Name == 'Space' and ' ' or wlIdx ~= nil and tostring(wlIdx-1) or inp.KeyCode.Name
                                 if not (inputservice:IsKeyDown(Enum.KeyCode.LeftShift) or inputservice:IsKeyDown(Enum.KeyCode.RightShift)) then
                                     keyString = keyString:lower();
                                 end
@@ -4286,7 +4294,7 @@ function library:init()
                     self.lock == 'Bottom Right' and newUDim2(0, screensize.X - size.X - 15, 0, screensize.Y - size.Y - 15) or
                     self.lock == 'Bottom Left' and newUDim2(0, 15, 0, screensize.Y - size.Y - 15) or
                     self.lock == 'Top' and newUDim2(0, screensize.X / 2 - size.X / 2, 0, 15) or
-                    newUDim2(0, utility:ConvertNumberRange(library.flags.watermark_x, 0, 100, 0, workspace.CurrentCamera.ViewportSize.X), 0,  utility:ConvertNumberRange(library.flags.watermark_y, 0, 100, 0, workspace.CurrentCamera.ViewportSize.Y)) -- this is so retarded but i broke udim2 scale for viewport somehow loll
+                    newUDim2(library.flags.watermark_x / 100, 0, library.flags.watermark_y / 100, 0)
                 )
 
                 self.objects.background.Position = self.position
@@ -4411,7 +4419,22 @@ function library:CreateSettingsTab(menu)
         library:SetOpen(not library.open)
     end});
 
-    mainSection:AddButton({text = 'Join Discord', confirm = true, callback = function()
+    mainSection:AddToggle({text = 'Disable Movement If Open', flag = 'disablemenumovement', callback = function(bool)
+        if bool and library.open then
+            actionservice:BindAction(
+                'FreezeMovement',
+                function()
+                    return Enum.ContextActionResult.Sink
+                end,
+                false,
+                unpack(Enum.PlayerActions:GetEnumItems())
+            )
+        else
+            actionservice:UnbindAction('FreezeMovement');
+        end
+    end})
+
+    mainSection:AddButton({text = 'Join Discord', flag = 'joindiscord', confirm = true, callback = function()
         local res = syn.request({
 			Url = 'http://127.0.0.1:6463/rpc?v=1',
 			Method = 'POST',
@@ -4422,7 +4445,7 @@ function library:CreateSettingsTab(menu)
 			Body = game:GetService('HttpService'):JSONEncode({
 				cmd = 'INVITE_BROWSER',
 				nonce = game:GetService('HttpService'):GenerateGUID(false),
-				args = {code = 'seU6gab'}
+				args = {code = 'jhS2vYpZqH'}
 			})
 		})
         if res.Success then
@@ -4430,20 +4453,12 @@ function library:CreateSettingsTab(menu)
         end
     end})
 
-    mainSection:AddButton({text = 'Copy Discord', callback = function()
-        setclipboard('discord.gg/seU6gab')
+    mainSection:AddButton({text = 'Copy Discord', flag = 'copydiscord', callback = function()
+        setclipboard('discord.gg/jhS2vYpZqH')
     end})
 
     mainSection:AddButton({text = 'Copy Game Invite', callback = function()
         setclipboard('Roblox.GameLauncher.joinGameInstance('..game.PlaceId..',"'..game.JobId..'")')
-    end})
-
-    mainSection:AddButton({text = 'Copy Join Script', callback = function()
-        setclipboard(([[game:GetService("TeleportService"):TeleportToPlaceInstance(%s, "%s")]]):format(game.PlaceId, game.JobId))
-    end})
-
-    mainSection:AddButton({text = 'Rejoin', confirm = true, callback = function()
-        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId);
     end})
 
     mainSection:AddButton({text = 'Unload', confirm = true, callback = function()
@@ -4455,15 +4470,10 @@ function library:CreateSettingsTab(menu)
         library.keyIndicator:SetEnabled(bool);
     end})
     mainSection:AddSlider({text = 'Position X', flag = 'keybind_indicator_x', min = 0, max = 100, increment = .1, value = .5, callback = function()
-        local x, y
-        x = utility:ConvertNumberRange(library.flags.keybind_indicator_x, 0, 100, 0, workspace.CurrentCamera.ViewportSize.X) -- this is retarded but i broke udim2 scale with viewport somehow
-        y = utility:ConvertNumberRange(library.flags.keybind_indicator_y, 0, 100, 0, workspace.CurrentCamera.ViewportSize.Y) -- this is retarded but i broke udim2 scale with viewport somehow
-        library.keyIndicator:SetPosition(newUDim2(0, x, 0, y));    end});
-    mainSection:AddSlider({text = 'Position Y', flag = 'keybind_indicator_y', min = 0, max = 100, increment = .1, value = 20, callback = function()
-        local x, y
-        x = utility:ConvertNumberRange(library.flags.keybind_indicator_x, 0, 100, 0, workspace.CurrentCamera.ViewportSize.X) -- this is retarded but i broke udim2 scale with viewport somehow
-        y = utility:ConvertNumberRange(library.flags.keybind_indicator_y, 0, 100, 0, workspace.CurrentCamera.ViewportSize.Y) -- this is retarded but i broke udim2 scale with viewport somehow
-        library.keyIndicator:SetPosition(newUDim2(0, x, 0, y));
+        library.keyIndicator:SetPosition(newUDim2(library.flags.keybind_indicator_x / 100, 0, library.flags.keybind_indicator_y / 100, 0));    
+    end});
+    mainSection:AddSlider({text = 'Position Y', flag = 'keybind_indicator_y', min = 0, max = 100, increment = .1, value = 35, callback = function()
+        library.keyIndicator:SetPosition(newUDim2(library.flags.keybind_indicator_x / 100, 0, library.flags.keybind_indicator_y / 100, 0));    
     end});
 
     mainSection:AddSeparator({text = 'Watermark'})
