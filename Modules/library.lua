@@ -4460,7 +4460,15 @@ function library:CreateSettingsTab(menu)
     mainSection:AddButton({text = 'Copy Game Invite', callback = function()
         setclipboard('Roblox.GameLauncher.joinGameInstance('..game.PlaceId..',"'..game.JobId..'")')
     end})
+	
+	mainSection:AddButton({text = 'Copy Join Script', callback = function()
+    	setclipboard(([[game:GetService("TeleportService"):TeleportToPlaceInstance(%s, "%s")]]):format(game.PlaceId, game.JobId))
+	end})
 
+	mainSection:AddButton({text = 'Rejoin', confirm = true, callback = function()
+    	game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId);
+	end})
+	
     mainSection:AddButton({text = 'Unload', confirm = true, callback = function()
         library:Unload();
     end})
