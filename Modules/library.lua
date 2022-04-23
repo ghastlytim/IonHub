@@ -4419,7 +4419,7 @@ function library:CreateSettingsTab(menu)
         library:SetOpen(not library.open)
     end});
 
-    mainSection:AddToggle({text = 'Disable Movement If Open', flag = 'disablemenumovement', callback = function(bool)
+    mainSection:AddToggle({text = 'Disable Movement If Open', default = true, flag = 'disablemenumovement', callback = function(bool)
         if bool and library.open then
             actionservice:BindAction(
                 'FreezeMovement',
@@ -4460,15 +4460,15 @@ function library:CreateSettingsTab(menu)
     mainSection:AddButton({text = 'Copy Game Invite', callback = function()
         setclipboard('Roblox.GameLauncher.joinGameInstance('..game.PlaceId..',"'..game.JobId..'")')
     end})
-	
-	mainSection:AddButton({text = 'Copy Join Script', callback = function()
-    	setclipboard(([[game:GetService("TeleportService"):TeleportToPlaceInstance(%s, "%s")]]):format(game.PlaceId, game.JobId))
-	end})
 
-	mainSection:AddButton({text = 'Rejoin', confirm = true, callback = function()
-    	game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId);
-	end})
-	
+    mainSection:AddButton({text = 'Copy Join Script', callback = function()
+        setclipboard(([[game:GetService("TeleportService"):TeleportToPlaceInstance(%s, "%s")]]):format(game.PlaceId, game.JobId))
+    end})
+    
+    mainSection:AddButton({text = 'Rejoin', confirm = true, callback = function()
+        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId);
+    end})
+
     mainSection:AddButton({text = 'Unload', confirm = true, callback = function()
         library:Unload();
     end})
