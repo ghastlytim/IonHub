@@ -97,8 +97,12 @@ do -- Player Metatable
         local Character = Get_Character(self.Player)
         if Character then
             local Head, HumanoidRootPart, Humanoid = Character:FindFirstChild("Head"), Character:FindFirstChild("HumanoidRootPart"), Character:FindFirstChildOfClass("Humanoid")
+            if not Humanoid then
+                self:Destroy()
+                return
+            end
             local Health, Health_Maximum = Humanoid.Health, Humanoid.MaxHealth
-            if Head and HumanoidRootPart and Humanoid and Health > 0 then
+            if Head and HumanoidRootPart and Health > 0 then
                 local Dimensions = Framework:Get_Bounding_Vectors(HumanoidRootPart)
                 local HRP_Position, On_Screen = Camera:WorldToViewportPoint(HumanoidRootPart.Position)
                 local Stud_Distance, Meter_Distance = math.floor(HRP_Position.Z + 0.5), math.floor(HRP_Position.Z / 3.5714285714 + 0.5)
