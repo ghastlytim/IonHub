@@ -14,8 +14,8 @@
 
 local startupArgs = ({...})[1] or {}
 
-if library then
-    library:Unload();
+if getgenv().library ~= nil then
+    getgenv().library:Unload();
 end
 
 if not game:IsLoaded() then
@@ -693,9 +693,6 @@ function library:Unload()
     end
     table.clear(self.drawings)
     getgenv().library = nil
-    if esp then
-        esp:unload()
-    end
 end
 
 function library:init()
@@ -4713,9 +4710,9 @@ function library:init()
     end)
 
     self.keyIndicator = self.NewIndicator({title = 'Keybinds', pos = newUDim2(0,15,0,325), enabled = false});
+    self:SetTheme(library.theme);
     self:SetOpen(true);
     self.hasInit = true
-    self:SendNotification(self.cheatname..' | ui initalized', 5);
 
 end
 
@@ -4778,6 +4775,14 @@ function library:CreateSettingsTab(menu)
         end
     end})
 
+    mainSection:AddButton({text = 'Copy Join Script', callback = function()
+        setclipboard(([[game:GetService("TeleportService"):TeleportToPlaceInstance(%s, "%s")]]):format(game.PlaceId, game.JobId))
+    end})
+    
+    mainSection:AddButton({text = 'Rejoin', confirm = true, callback = function()
+        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId);
+    end})
+    
     mainSection:AddButton({text = 'Join Discord', flag = 'joindiscord', confirm = true, callback = function()
         local res = syn.request({
             Url = 'http://127.0.0.1:6463/rpc?v=1',
@@ -4803,14 +4808,6 @@ function library:CreateSettingsTab(menu)
 
     mainSection:AddButton({text = 'Copy Game Invite', callback = function()
         setclipboard('Roblox.GameLauncher.joinGameInstance('..game.PlaceId..',"'..game.JobId..'")')
-    end})
-
-    mainSection:AddButton({text = 'Copy Join Script', callback = function()
-        setclipboard(([[game:GetService("TeleportService"):TeleportToPlaceInstance(%s, "%s")]]):format(game.PlaceId, game.JobId))
-    end})
-    
-    mainSection:AddButton({text = 'Rejoin', confirm = true, callback = function()
-        game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId);
     end})
 
     mainSection:AddButton({text = 'Unload', confirm = true, callback = function()
