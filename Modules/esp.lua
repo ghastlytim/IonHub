@@ -197,9 +197,9 @@ do -- Player Metatable
                         Bottom_Offset = Bottom_Offset + 10
                     elseif Name_Position == "Left" then
                         if Healthbar_Position == "Left" then
-                            Name.Position = Health_Left_Pos_Outline - Vector2.new(Name.TextBounds.X/2 - 2 + 4, -(100 * Health_Left_Size_Outline.Y / 100) + 2 + Left_Offset)
+                            Name.Position = Health_Left_Pos_Outline - Vector2.new(Name.TextBounds.X/2 - 2 + 4, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
                         else
-                            Name.Position = Health_Left_Pos_Outline - Vector2.new(Name.TextBounds.X/2 - 2, -(100 * Health_Left_Size_Outline.Y / 100) + 2 + Left_Offset)
+                            Name.Position = Health_Left_Pos_Outline - Vector2.new(Name.TextBounds.X/2 - 2, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
                         end
                         Left_Offset = Left_Offset + 10
                     elseif Name_Position == "Right" then
@@ -224,9 +224,9 @@ do -- Player Metatable
                         Bottom_Offset = Bottom_Offset + 10
                     elseif Distance_Position == "Left" then
                         if Healthbar_Position == "Left" then
-                            Distance.Position = Health_Left_Pos_Outline - Vector2.new(Distance.TextBounds.X/2 - 2 + 4, -(100 * Health_Left_Size_Outline.Y / 100) + 2 + Left_Offset)
+                            Distance.Position = Health_Left_Pos_Outline - Vector2.new(Distance.TextBounds.X/2 - 2 + 4, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
                         else
-                            Distance.Position = Health_Left_Pos_Outline - Vector2.new(Distance.TextBounds.X/2 - 2, -(100 * Health_Left_Size_Outline.Y / 100) + 2 + Left_Offset)
+                            Distance.Position = Health_Left_Pos_Outline - Vector2.new(Distance.TextBounds.X/2 - 2, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
                         end
                         Left_Offset = Left_Offset + 10
                     elseif Distance_Position == "Right" then
@@ -252,9 +252,9 @@ do -- Player Metatable
                         Bottom_Offset = Bottom_Offset + 10
                     elseif Tool_Position == "Left" then
                         if Healthbar_Position == "Left" then
-                            Tool.Position = Health_Left_Pos_Outline - Vector2.new(Tool.TextBounds.X/2 - 2 + 4, -(100 * Health_Left_Size_Outline.Y / 100) + 2 + Left_Offset)
+                            Tool.Position = Health_Left_Pos_Outline - Vector2.new(Tool.TextBounds.X/2 - 2 + 4, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
                         else
-                            Tool.Position = Health_Left_Pos_Outline - Vector2.new(Tool.TextBounds.X/2 - 2, -(100 * Health_Left_Size_Outline.Y / 100) + 2 + Left_Offset)
+                            Tool.Position = Health_Left_Pos_Outline - Vector2.new(Tool.TextBounds.X/2 - 2, -(100 * Health_Left_Size_Outline.Y / 100) + 2 - Left_Offset)
                         end
                         Left_Offset = Left_Offset + 10
                     elseif Tool_Position == "Right" then
