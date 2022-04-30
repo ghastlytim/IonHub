@@ -309,10 +309,10 @@ do -- ESP Functions
     end
 end
 
-RunService.RenderStepped:Connect(function()
+local Connection = RunService.RenderStepped:Connect(function()
     for i, Object in pairs(ESP.Objects) do
         Object:Update()
     end
 end)
 
-return ESP
+return ESP, Connection
