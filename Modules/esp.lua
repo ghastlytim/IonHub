@@ -296,7 +296,7 @@ do -- Player Metatable
 end
 do -- ESP Functions
     function ESP:Player(Instance, Data)
-        Data = type(Data) == "table" and Data or {
+        Data = Data ~= nil and type(Data) == "table" and Data or {
             Object = Get_Character(Instance),
             Player = Instance
         }
