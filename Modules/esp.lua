@@ -101,7 +101,7 @@ do -- Player Metatable
         local Health = self.Components.Health
         local Character = Get_Character(self.Player)
         if Character then
-            local Head, HumanoidRootPart, Humanoid = Character:WaitForChild("Head", 5), Character:WaitForChild("HumanoidRootPart", 5), Character:FindFirstChildOfClass("Humanoid")
+            local Head, HumanoidRootPart, Humanoid = Character:FindFirstChild("Head"), Character:FindFirstChild("HumanoidRootPart"), Character:FindFirstChildOfClass("Humanoid")
             if not Humanoid then
                 self:Destroy()
                 return
