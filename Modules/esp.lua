@@ -41,6 +41,9 @@ local Framework = {}; Framework.__index = Framework; do
             BFLC = Part_CFrame * CFrame.new(-X, -Y * 1.6, -Z),
         };
     end
+    function Framework:Drawing_Transparency(Transparency)
+        return 1 - Transparency
+    end
 end
 
 -- Main
@@ -168,14 +171,14 @@ do -- Player Metatable
                     Box.Size = Box_Size
                     Box.Position = Box_Position
                     Box.Color = Is_Highlighted and Highlight_Color or ESP.Settings.Box.Color
-                    Box.Transparency = ESP.Settings.Box.Transparency
+                    Box.Transparency = Framework:Drawing_Transparency(ESP.Settings.Box.Transparency)
                     Box.Visible = ESP.Settings.Box.Enabled
 
                     Box_Outline.Size = Box_Size
                     Box_Outline.Position = Box_Position
                     Box_Outline.Color = ESP.Settings.Box_Outline.Color
                     Box_Outline.Thickness = ESP.Settings.Box_Outline.Outline_Size + 2
-                    Box_Outline.Transparency = ESP.Settings.Box_Outline.Transparency
+                    Box_Outline.Transparency = Framework:Drawing_Transparency(ESP.Settings.Box_Outline.Transparency)
                     Box_Outline.Visible = ESP.Settings.Box.Enabled and ESP.Settings.Box_Outline.Enabled or false
 
                     -- Healthbar
@@ -246,6 +249,7 @@ do -- Player Metatable
                     end
                     Name.Color = Is_Highlighted and Highlight_Color or ESP.Settings.Name.Color
                     Name.OutlineColor = ESP.Settings.Name.OutlineColor
+                    Name.Transparency = Framework:Drawing_Transparency(ESP.Settings.Name.Transparency)
                     Name.Visible = ESP.Settings.Name.Enabled
 
                     -- Distance
@@ -274,6 +278,7 @@ do -- Player Metatable
                     Distance.Text = Meter_Distance.."m"
                     Distance.Color = Is_Highlighted and Highlight_Color or ESP.Settings.Distance.Color
                     Distance.OutlineColor = ESP.Settings.Distance.OutlineColor
+                    Distance.Transparency = Framework:Drawing_Transparency(ESP.Settings.Distance.Transparency)
                     Distance.Visible = ESP.Settings.Distance.Enabled
 
                     -- Tool
@@ -302,6 +307,7 @@ do -- Player Metatable
                     Tool.Text = Get_Tool(self.Player)
                     Tool.Color = Is_Highlighted and Highlight_Color or ESP.Settings.Tool.Color
                     Tool.OutlineColor = ESP.Settings.Tool.OutlineColor
+                    Tool.Transparency = Framework:Drawing_Transparency(ESP.Settings.Tool.Transparency)
                     Tool.Visible = ESP.Settings.Tool.Enabled
 
                     -- Health
@@ -330,6 +336,7 @@ do -- Player Metatable
                     Health.Text = tostring(math.floor(Current_Health + 0.5))
                     Health.Color = Health_Lerp_Color
                     Health.OutlineColor = ESP.Settings.Health.OutlineColor
+                    Health.Transparency = Framework:Drawing_Transparency(ESP.Settings.Health.Transparency)
                     Health.Visible = ESP.Settings.Health.Enabled
 
                     -- Chams
