@@ -344,6 +344,10 @@ do -- Player Metatable
                     end
                 else
                     for Index, Drawing in pairs(self.Components) do
+                        if Index == "Chams" then
+                            Drawing.Enabled = false
+                            continue
+                        end
                         Drawing.Visible = false
                     end
                     return
