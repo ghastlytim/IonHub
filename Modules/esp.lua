@@ -342,7 +342,7 @@ do -- Player Metatable
                     -- Chams
                     local Chams_Settings = ESP.Settings.Chams
                     local Chams_Enabled = Chams_Settings.Enabled
-                    Chams.Parent = Character
+                    --Chams.Parent = Character
                     Chams.Enabled = Chams_Enabled
                     Chams.Adornee = Chams_Enabled and Character or nil
                     if Chams_Enabled then
