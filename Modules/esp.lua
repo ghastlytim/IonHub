@@ -97,7 +97,7 @@ do -- Player Metatable
     function Player_Metatable:Destroy()
         ESP.Objects[self.Object] = nil
         for Index, Component in pairs(self.Components) do
-            if Index == "Chams" then
+            if tostring(Index) == "Chams" then
                 Component:Destroy()
                 return
             end
@@ -344,7 +344,7 @@ do -- Player Metatable
                     end
                 else
                     for Index, Drawing in pairs(self.Components) do
-                        if Index == "Chams" then
+                        if tostring(Index) == "Chams" then
                             Drawing.Enabled = false
                             continue
                         end
