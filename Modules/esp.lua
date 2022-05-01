@@ -386,16 +386,14 @@ do -- Player Metatable
                     -- Chams
                     local Chams_Settings = ESP.Settings.Chams
                     local Is_Visible = false
-                    if Chams_Settings.Mode == "Visible" then
-                        if Check_Visible(Head) or Check_Visible(HumanoidRootPart) then
-                            Is_Visible = true
-                        end
+                    if Check_Visible(Head) or Check_Visible(HumanoidRootPart) then
+                        Is_Visible = true
                     end
                     local Chams_Enabled = Chams_Settings.Enabled
                     Chams.Enabled = Chams_Enabled
                     Chams.Adornee = Chams_Enabled and Character or nil
                     if Chams_Enabled then
-                        Chams.FillColor = Is_Visible and Color3.new(0, 1, 0) or Chams_Settings.Color
+                        Chams.FillColor = Chams_Settings.Mode == "Visible" and Is_Visible and Color3.new(0, 1, 0) or Chams_Settings.Color
                         Chams.OutlineColor = Chams_Settings.OutlineColor
                         Chams.FillTransparency = Chams_Settings.Transparency
                         Chams.OutlineTransparency = Chams_Settings.OutlineTransparency
@@ -452,10 +450,6 @@ end
 local Connection = RunService.RenderStepped:Connect(function()
     for i, Object in pairs(ESP.Objects) do
         Object:Update()
-        --local Success, Error = pcall(Object.Update, Object)
-        --if not Success then
-            --warn("[ESP]:", Error, Object.Object:GetFullName())
-        --end
     end
 end)
 
