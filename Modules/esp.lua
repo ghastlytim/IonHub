@@ -394,10 +394,11 @@ end
 
 local Connection = RunService.RenderStepped:Connect(function()
     for i, Object in pairs(ESP.Objects) do
-        local Success, Error = pcall(Object.Update, Object)
-        if not Success then
-            warn("[ESP]:", Error, Object.Object:GetFullName())
-        end
+        Object:Update()
+        --local Success, Error = pcall(Object.Update, Object)
+        --if not Success then
+            --warn("[ESP]:", Error, Object.Object:GetFullName())
+        --end
     end
 end)
 
