@@ -98,12 +98,13 @@ do -- Player Metatable
         for Index, Component in pairs(self.Components) do
             if tostring(Index) == "Chams" then
                 Component:Destroy()
+                self.Components[Index] = nil
                 continue
             end
             Component.Visible = false
             Component:Remove()
+            self.Components[Index] = nil
         end
-        self.Components[Index] = nil
         ESP.Objects[self.Player] = nil
     end
     function Player_Metatable:Update()
