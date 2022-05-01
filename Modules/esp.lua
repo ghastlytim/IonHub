@@ -95,16 +95,16 @@ local Player_Metatable = {}
 do -- Player Metatable
     Player_Metatable.__index = Player_Metatable
     function Player_Metatable:Destroy()
-        ESP.Objects[self.Object] = nil
         for Index, Component in pairs(self.Components) do
             if tostring(Index) == "Chams" then
                 Component:Destroy()
-                return
+                continue
             end
             Component.Visible = false
             Component:Remove()
         end
         self.Components[Index] = nil
+        ESP.Objects[self.Player] = nil
     end
     function Player_Metatable:Update()
         local Box, Box_Outline = self.Components.Box, self.Components.Box_Outline
