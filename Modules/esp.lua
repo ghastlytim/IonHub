@@ -341,7 +341,7 @@ do -- Player Metatable
                         Chams.FillColor = Chams_Settings.Color
                         Chams.OutlineColor = Chams_Settings.OutlineColor
                         Chams.FillTransparency = Chams_Settings.Transparency
-                        Chams.FillColor = Chams_Settings.OutlineTransparency
+                        Chams.OutlineTransparency = Chams_Settings.OutlineTransparency
                     end
                 else
                     for Index, Drawing in pairs(self.Components) do
