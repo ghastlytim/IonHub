@@ -103,7 +103,7 @@ local Check_Visible = function(Target)
     local To_Ignore = {Players.LocalPlayer.Character, Camera};
     RaycastParams_.FilterDescendantsInstances = To_Ignore;
     RaycastParams_.IgnoreWater = true;
-    local Result = workspace:Raycast(Camera.CFrame.p, (Target.Position - Camera.CFrame.p).unit * 10000, RaycastParams_)
+    local Result = Workspace:Raycast(Camera.CFrame.p, (Target.Position - Camera.CFrame.p).unit * 10000, RaycastParams_)
     if Result then 
         local Instance_ = Result.Instance
         if Instance_:IsDescendantOf(Target.Parent) then
