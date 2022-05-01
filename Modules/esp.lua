@@ -296,10 +296,6 @@ do -- Player Metatable
 end
 do -- ESP Functions
     function ESP:Player(Instance, Data)
-        Data = Data ~= nil and type(Data) == "table" and Data or {
-            Object = Get_Character(Instance),
-            Player = Instance
-        }
         local Object = setmetatable({
             Object = Data.Object,
             Player = Data.Player,
