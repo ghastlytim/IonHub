@@ -98,7 +98,9 @@ local Ignore_Table = {Players.LocalPlayer.Character, Camera}
 for _, Part in pairs(Workspace:GetDescendants()) do
     pcall(function()
         if Part.CanCollide == false or Part.Transparency == 1 then
-            table.insert(Ignore_Table, Part)
+            if Part.Name ~= "Head" and Part.Name ~= "HumanoidRootPart" then
+                table.insert(Ignore_Table, Part)
+            end
         end
     end)
 end
@@ -118,7 +120,9 @@ local Check_Visible = function(Target)
             return true
         else
             if Instance_.CanCollide == false or Instance_.Transparency == 1 then
-                table.insert(Ignore_Table, Instance_)
+                if Instance_.Name ~= "Head" and Instance_.Name ~= "HumanoidRootPart" then
+                    table.insert(Ignore_Table, Instance_)
+                end
             end
         end
     end
@@ -454,4 +458,4 @@ local Connection = RunService.RenderStepped:Connect(function()
     end
 end)
 
-return ESP, Connection
+return ESP, Connection, Ignore_Table
