@@ -102,7 +102,51 @@ local Get_Tool = function(Player)
     return "Hands"
 end
 
-local Ignore_Table = {Camera}
+--local Ignore_Table = {Camera}
+
+local Passed = false
+local function Pass_Through(From, To, RayParams, Ignore_Table)
+    RayParams.FilterDescendantsInstances = Ignore_Table
+    local Result = Workspace:Raycast(From, (To - From).unit * 10000, RayParams)
+    if Result then
+        local Instance_ = Result.Instance
+        if Instance_:IsDescendantOf(Target.Parent) then
+            Passed = true
+            return true
+        elseif Instance_.CanCollide == false or Instance_.Transparency == 1 then
+            if Instance_.Name ~= "Head" and Instance_.Name ~= "HumanoidRootPart" then
+                table.insert(Ignore_Table, Instance_)
+                Pass_Through(Result.Position, Target.Position, RaycastParams_, Ignore_Table)
+            end
+        end
+    end
+end
+
+local Check_Visible = function(Target)
+    if ESP.Overrides.Check_Visible ~= nil then
+        return ESP.Overrides.Check_Visible(Player)
+    end
+    local RaycastParams_ = RaycastParams.new();
+    RaycastParams_.FilterType = Enum.RaycastFilterType.Blacklist;
+    local Ignore_Table = {Camera, Players.LocalPlayer.Character}
+    RaycastParams_.FilterDescendantsInstances = Ignore_Table;
+    RaycastParams_.IgnoreWater = true;
+    local Result = Workspace:Raycast(Camera.CFrame.p, (Target.Position - Camera.CFrame.p).unit * 10000, RaycastParams_)
+    if Result then
+        local Instance_ = Result.Instance
+        if Instance_:IsDescendantOf(Target.Parent) then
+            return true
+        elseif Instance_.CanCollide == false or Instance_.Transparency == 1 then
+            if Instance_.Name ~= "Head" and Instance_.Name ~= "HumanoidRootPart" then
+                table.insert(Ignore_Table, Instance_)
+                Passed = false
+                Pass_Through(Result.Position, Target.Position, RaycastParams_, Ignore_Table)
+            end
+        end
+    end
+    return Passed
+end
+--[[
 for _, Part in pairs(Workspace:GetDescendants()) do
     pcall(function()
         if Part.CanCollide == false or Part.Transparency == 1 then
@@ -143,6 +187,7 @@ local Check_Visible = function(Target)
     end
     return false
 end
+--]]
 
 local Player_Metatable = {}
 do -- Player Metatable
