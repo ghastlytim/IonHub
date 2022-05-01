@@ -105,7 +105,7 @@ end
 --local Ignore_Table = {Camera}
 
 local Passed = false
-local function Pass_Through(From, To, RayParams, Ignore_Table)
+local function Pass_Through(Target, From, To, RayParams, Ignore_Table)
     RayParams.FilterDescendantsInstances = Ignore_Table
     local Result = Workspace:Raycast(From, (To - From).unit * 10000, RayParams)
     if Result then
@@ -116,7 +116,7 @@ local function Pass_Through(From, To, RayParams, Ignore_Table)
         elseif Instance_.CanCollide == false or Instance_.Transparency == 1 then
             if Instance_.Name ~= "Head" and Instance_.Name ~= "HumanoidRootPart" then
                 table.insert(Ignore_Table, Instance_)
-                Pass_Through(Result.Position, Target.Position, RaycastParams_, Ignore_Table)
+                Pass_Through(Target, Result.Position, Target.Position, RaycastParams_, Ignore_Table)
             end
         end
     end
@@ -140,7 +140,7 @@ local Check_Visible = function(Target)
             if Instance_.Name ~= "Head" and Instance_.Name ~= "HumanoidRootPart" then
                 table.insert(Ignore_Table, Instance_)
                 Passed = false
-                Pass_Through(Result.Position, Target.Position, RaycastParams_, Ignore_Table)
+                Pass_Through(Target, Result.Position, Target.Position, RaycastParams_, Ignore_Table)
             end
         end
     end
