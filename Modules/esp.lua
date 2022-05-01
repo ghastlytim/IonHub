@@ -59,7 +59,7 @@ local ESP = {
         Distance = {Enabled = false, Position = "Bottom", Color = Color3.new(1, 1, 1), Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
         Tool = {Enabled = false, Position = "Right", Color = Color3.new(1, 1, 1), Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
         Health = {Enabled = false, Position = "Right", Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
-        Chams = {Enabled = false, Color = Color3.new(1, 1, 1), OutlineColor = Color3.new(0, 0, 0), Transparency = 0.5, OutlineTransparency = 0}
+        Chams = {Enabled = false, Color = Color3.new(1, 1, 1), Mode = "Visible", OutlineColor = Color3.new(0, 0, 0), Transparency = 0.5, OutlineTransparency = 0}
     },
     Objects = {},
     Overrides = {}
@@ -92,6 +92,25 @@ local Get_Tool = function(Player)
         end
     end
     return "Hands"
+end
+
+local Check_Visible = function(Target)
+    if ESP.Overrides.Check_Visible ~= nil then
+        return ESP.Overrides.Check_Visible(Player)
+    end
+    local RaycastParams_ = RaycastParams.new();
+    RaycastParams_.FilterType = Enum.RaycastFilterType.Blacklist;
+    local To_Ignore = {Players.LocalPlayer.Character, Camera};
+    RaycastParams_.FilterDescendantsInstances = To_Ignore;
+    RaycastParams_.IgnoreWater = true;
+    local Result = workspace:Raycast(Camera.CFrame.p, (Target.Position - camera.CFrame.p).unit * 10000, RaycastParams_)
+    if Result then 
+        local Instance_ = Result.Instance
+        if Instance_:IsDescendantOf(Target.Parent) then
+            return true
+        end
+    end
+    return false
 end
 
 local Player_Metatable = {}
@@ -158,8 +177,9 @@ do -- Player Metatable
                 local Box_Position = Framework:Round_V2(Vector2.new(X_Maximal + Box_Size.X / X_Minimal, Y_Maximal + Box_Size.Y / Y_Minimal))
 
                 if ESP.Settings.Enabled and On_Screen and Meter_Distance < ESP.Settings.Maximal_Distance then
-                    local Is_Highlighted = ESP.Settings.Highlight.Enabled and ESP.Settings.Highlight.Target == self.Object or false
-                    local Highlight_Color = ESP.Settings.Highlight.Color
+                    local Highlight_Settings = ESP.Settings.Highlight
+                    local Is_Highlighted = Highlight_Settings.Enabled and Highlight_Settings.Target == self.Object or false
+                    local Highlight_Color = Highlight_Settings.Color
 
                     -- Offsets
                     local Top_Offset = 3
@@ -168,18 +188,20 @@ do -- Player Metatable
                     local Right_Offset = 0
 
                     -- Box
+                    local Box_Settings = ESP.Settings.Box
                     Box.Size = Box_Size
                     Box.Position = Box_Position
-                    Box.Color = Is_Highlighted and Highlight_Color or ESP.Settings.Box.Color
-                    Box.Transparency = Framework:Drawing_Transparency(ESP.Settings.Box.Transparency)
-                    Box.Visible = ESP.Settings.Box.Enabled
+                    Box.Color = Is_Highlighted and Highlight_Color or Box_Settings.Color
+                    Box.Transparency = Framework:Drawing_Transparency(Box_Settings.Transparency)
+                    Box.Visible = Box_Settings.Enabled
 
+                    local Box_Outline_Settings = ESP.Settings.Box_Outline
                     Box_Outline.Size = Box_Size
                     Box_Outline.Position = Box_Position
-                    Box_Outline.Color = ESP.Settings.Box_Outline.Color
-                    Box_Outline.Thickness = ESP.Settings.Box_Outline.Outline_Size + 2
-                    Box_Outline.Transparency = Framework:Drawing_Transparency(ESP.Settings.Box_Outline.Transparency)
-                    Box_Outline.Visible = ESP.Settings.Box.Enabled and ESP.Settings.Box_Outline.Enabled or false
+                    Box_Outline.Color = Box_Outline_Settings.Color
+                    Box_Outline.Thickness = Box_Outline_Settings.Outline_Size + 2
+                    Box_Outline.Transparency = Framework:Drawing_Transparency(Box_Outline_Settings.Transparency)
+                    Box_Outline.Visible = Box_Settings.Enabled and Box_Outline_Settings.Enabled or false
 
                     -- Healthbar
                     local Health_Top_Size_Outline = Vector2.new(Box_Size.X - 4, 3)
@@ -192,9 +214,10 @@ do -- Player Metatable
                     local Health_Left_Size_Fill = Vector2.new(1, (Current_Health * Health_Left_Size_Outline.Y / Health_Maximum) + 2)
                     local Health_Left_Pos_Fill = Health_Left_Pos_Outline + Vector2.new(1,-1 + -(Health_Left_Size_Fill.Y - Health_Left_Size_Fill.Y));
 
-                    local Healthbar_Enabled = ESP.Settings.Healthbar.Enabled
-                    local Healthbar_Position = ESP.Settings.Healthbar.Position
-                    local Health_Lerp_Color = ESP.Settings.Healthbar.Color:Lerp(ESP.Settings.Healthbar.Color_Lerp, Current_Health / Health_Maximum)
+                    local Healthbar_Settings = ESP.Settings.Healthbar
+                    local Healthbar_Enabled = Healthbar_Settings.Enabled
+                    local Healthbar_Position = Healthbar_Settings.Position
+                    local Health_Lerp_Color = Healthbar_Settings.Color:Lerp(Healthbar_Settings.Color_Lerp, Current_Health / Health_Maximum)
                     if Healthbar_Enabled then
                         if Healthbar_Position == "Left" then
                             Healthbar.Size = Health_Left_Size_Fill;
@@ -225,7 +248,8 @@ do -- Player Metatable
                     Healthbar_Outline.Visible = Healthbar_Enabled
 
                     -- Name
-                    local Name_Position = ESP.Settings.Name.Position
+                    local Name_Settings = ESP.Settings.Name
+                    local Name_Position = Name_Settings.Position
                     if Name_Position == "Top" then 
                         Name.Position = Vector2.new(X_Maximal + Box_Size.X / 2, Box_Position.Y) - Vector2.new(0, Name.TextBounds.Y - Box_Size.Y + Top_Offset) 
                         Top_Offset = Top_Offset + 10
@@ -247,13 +271,14 @@ do -- Player Metatable
                         end
                         Right_Offset = Right_Offset + 10
                     end
-                    Name.Color = Is_Highlighted and Highlight_Color or ESP.Settings.Name.Color
-                    Name.OutlineColor = ESP.Settings.Name.OutlineColor
-                    Name.Transparency = Framework:Drawing_Transparency(ESP.Settings.Name.Transparency)
-                    Name.Visible = ESP.Settings.Name.Enabled
+                    Name.Color = Is_Highlighted and Highlight_Color or Name_Settings.Color
+                    Name.OutlineColor = Name_Settings.OutlineColor
+                    Name.Transparency = Framework:Drawing_Transparency(Name_Settings.Transparency)
+                    Name.Visible = Name_Settings.Enabled
 
                     -- Distance
-                    local Distance_Position = ESP.Settings.Distance.Position
+                    local Distance_Settings = ESP.Settings.Distance
+                    local Distance_Position = Distance_Settings.Position
                     if Distance_Position == "Top" then 
                         Distance.Position = Vector2.new(X_Maximal + Box_Size.X / 2, Box_Position.Y) - Vector2.new(0, Distance.TextBounds.Y - Box_Size.Y + Top_Offset) 
                         Top_Offset = Top_Offset + 10
@@ -276,13 +301,14 @@ do -- Player Metatable
                         Right_Offset = Right_Offset + 10
                     end
                     Distance.Text = Meter_Distance.."m"
-                    Distance.Color = Is_Highlighted and Highlight_Color or ESP.Settings.Distance.Color
-                    Distance.OutlineColor = ESP.Settings.Distance.OutlineColor
-                    Distance.Transparency = Framework:Drawing_Transparency(ESP.Settings.Distance.Transparency)
-                    Distance.Visible = ESP.Settings.Distance.Enabled
+                    Distance.Color = Is_Highlighted and Highlight_Color or Distance_Settings.Color
+                    Distance.OutlineColor = Distance_Settings.OutlineColor
+                    Distance.Transparency = Framework:Drawing_Transparency(Distance_Settings.Transparency)
+                    Distance.Visible = Distance_Settings.Enabled
 
                     -- Tool
-                    local Tool_Position = ESP.Settings.Tool.Position
+                    local Tool_Settings = ESP.Settings.Tool
+                    local Tool_Position = Tool_Settings.Position
                     if Tool_Position == "Top" then 
                         Tool.Position = Vector2.new(X_Maximal + Box_Size.X / 2, Box_Position.Y) - Vector2.new(0, Tool.TextBounds.Y - Box_Size.Y + Top_Offset) 
                         Top_Offset = Top_Offset + 10
@@ -305,13 +331,14 @@ do -- Player Metatable
                         Right_Offset = Right_Offset + 10
                     end
                     Tool.Text = Get_Tool(self.Player)
-                    Tool.Color = Is_Highlighted and Highlight_Color or ESP.Settings.Tool.Color
-                    Tool.OutlineColor = ESP.Settings.Tool.OutlineColor
-                    Tool.Transparency = Framework:Drawing_Transparency(ESP.Settings.Tool.Transparency)
-                    Tool.Visible = ESP.Settings.Tool.Enabled
+                    Tool.Color = Is_Highlighted and Highlight_Color or Tool_Settings.Color
+                    Tool.OutlineColor = Tool_Settings.OutlineColor
+                    Tool.Transparency = Framework:Drawing_Transparency(Tool_Settings.Transparency)
+                    Tool.Visible = Tool_Settings.Enabled
 
                     -- Health
-                    local Health_Position = ESP.Settings.Health.Position
+                    local Health_Settings = ESP.Settings.Health
+                    local Health_Position = Health_Settings.Position
                     if Health_Position == "Top" then 
                         Health.Position = Vector2.new(X_Maximal + Box_Size.X / 2, Box_Position.Y) - Vector2.new(0, Health.TextBounds.Y - Box_Size.Y + Top_Offset) 
                         Top_Offset = Top_Offset + 10
@@ -335,18 +362,23 @@ do -- Player Metatable
                     end
                     Health.Text = tostring(math.floor(Current_Health + 0.5))
                     Health.Color = Health_Lerp_Color
-                    Health.OutlineColor = ESP.Settings.Health.OutlineColor
-                    Health.Transparency = Framework:Drawing_Transparency(ESP.Settings.Health.Transparency)
-                    Health.Visible = ESP.Settings.Health.Enabled
+                    Health.OutlineColor = Health_Settings.OutlineColor
+                    Health.Transparency = Framework:Drawing_Transparency(Health_Settings.Transparency)
+                    Health.Visible = Health_Settings.Enabled
 
                     -- Chams
                     local Chams_Settings = ESP.Settings.Chams
+                    local Is_Visible = false
+                    if Chams_Settings.Mode == "Visible" then
+                        if Check_Visible(Head) or Check_Visible(HumanoidRootPart) then
+                            Is_Visible = true
+                        end
+                    end
                     local Chams_Enabled = Chams_Settings.Enabled
-                    --Chams.Parent = Character
                     Chams.Enabled = Chams_Enabled
                     Chams.Adornee = Chams_Enabled and Character or nil
                     if Chams_Enabled then
-                        Chams.FillColor = Chams_Settings.Color
+                        Chams.FillColor = Is_Visible and Color3.new(0, 1, 0) or Chams_Settings.Color
                         Chams.OutlineColor = Chams_Settings.OutlineColor
                         Chams.FillTransparency = Chams_Settings.Transparency
                         Chams.OutlineTransparency = Chams_Settings.OutlineTransparency
