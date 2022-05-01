@@ -40,6 +40,7 @@ local ESP = {
     Settings = {
         Enabled = false,
         Maximal_Distance = 1000,
+        Highlight = {Enabled = false, Color = Color3.new(1, 0, 0)},
         Box = {Enabled = false, Color = Color3.new(1, 1, 1)},
         Box_Outline = {Enabled = false, Color = Color3.new(0, 0, 0), Outline_Size = 1},
         Healthbar = {Enabled = false, Position = "Left", Color = Color3.new(1, 1, 1), Color_Lerp = Color3.fromRGB(40, 252, 3)},
@@ -50,6 +51,10 @@ local ESP = {
     Objects = {},
     Overrides = {}
 }
+
+function ESP:GetObject(Object)
+    return self.Objects[Object]
+end
 
 function ESP:Toggle(State)
     self.Settings.Enabled = State
@@ -96,7 +101,7 @@ do -- Player Metatable
         local Health = self.Components.Health
         local Character = Get_Character(self.Player)
         if Character then
-            local Head, HumanoidRootPart, Humanoid = Character:FindFirstChild("Head"), Character:FindFirstChild("HumanoidRootPart"), Character:FindFirstChildOfClass("Humanoid")
+            local Head, HumanoidRootPart, Humanoid = Character:WaitForChild("Head", 5), Character:WaitForChild("HumanoidRootPart", 5), Character:FindFirstChildOfClass("Humanoid")
             if not Humanoid then
                 self:Destroy()
                 return
@@ -290,13 +295,16 @@ do -- Player Metatable
     end
 end
 do -- ESP Functions
-    function ESP:Player(Data)
+    function ESP:Player(Instance, Data)
         local Object = setmetatable({
-            Object = Data.Object,
-            Player = Data.Player,
+            Object = Data.Object or Get_Character(Instance),
+            Player = Data.Player or Instance,
             Components = {},
             Type = "Player"
         }, Player_Metatable)
+        if self:GetObject(Instance) then
+            self:GetObject(Instance):Destroy()
+        end
         local Components = Object.Components
         Components.Box = Framework:Draw("Square", {Thickness = 1, ZIndex = 2})
         Components.Box_Outline = Framework:Draw("Square", {Thickness = 3, ZIndex = 1})
@@ -305,7 +313,7 @@ do -- ESP Functions
         Components.Name = Framework:Draw("Text", {Text = Object.Player.Name, Font = 2, Size = 13, Outline = true, Center = true})
         Components.Distance = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
         Components.Tool = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
-        self.Objects[Data.Player.Name] = Object
+        self.Objects[Instance] = Object
         return Object
     end
     function ESP:Object(Data)
