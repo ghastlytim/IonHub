@@ -383,7 +383,7 @@ do -- ESP Functions
         Components.Distance = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
         Components.Tool = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
         Components.Health = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
-        Components.Chams = Framework:Instance("Highlight", {DepthMode = Enum.HighlightDepthMode.AlwaysOnTop})
+        Components.Chams = Framework:Instance("Highlight", {Parent = CoreGui, DepthMode = Enum.HighlightDepthMode.AlwaysOnTop})
         self.Objects[Instance] = Object
         return Object
     end
