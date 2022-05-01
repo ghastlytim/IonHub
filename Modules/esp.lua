@@ -105,8 +105,8 @@ end
 --local Ignore_Table = {Camera}
 
 local Passed = false
-local function Pass_Through(Target, From, To, RayParams, Ignore_Table)
-    RayParams.FilterDescendantsInstances = Ignore_Table
+local function Pass_Through(Target, From, To, RaycastParams_, Ignore_Table)
+    RaycastParams_.FilterDescendantsInstances = Ignore_Table
     local Result = Workspace:Raycast(From, (To - From).unit * 10000, RayParams)
     if Result then
         local Instance_ = Result.Instance
