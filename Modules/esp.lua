@@ -50,6 +50,7 @@ end
 local ESP = {
     Settings = {
         Enabled = false,
+        Team_Check = false,
         Maximal_Distance = 1000,
         Highlight = {Enabled = false, Color = Color3.new(1, 0, 0), Target = ""},
         Box = {Enabled = false, Color = Color3.new(1, 1, 1), Transparency = 0},
@@ -71,6 +72,13 @@ end
 
 function ESP:Toggle(State)
     self.Settings.Enabled = State
+end
+
+local Get_Team = function(Player)
+    if ESP.Overrides.Get_Team ~= nil then
+        return ESP.Overrides.Get_Team(Player)
+    end
+    return Player.Team
 end
 
 local Get_Character = function(Player)
@@ -198,8 +206,17 @@ do -- Player Metatable
 
                 local Box_Size = Framework:Round_V2(Vector2.new(X_Minimal - X_Maximal, Y_Minimal - Y_Maximal))
                 local Box_Position = Framework:Round_V2(Vector2.new(X_Maximal + Box_Size.X / X_Minimal, Y_Maximal + Box_Size.Y / Y_Minimal))
+                local Good = false
 
-                if ESP.Settings.Enabled and On_Screen and Meter_Distance < ESP.Settings.Maximal_Distance then
+                if ESP.Settings.Team_Check then
+                    if Get_Team(self.Player) ~= Get_Team(Players.LocalPlayer) then
+                        Good = true
+                    end
+                else
+                    Good = true
+                end
+
+                if ESP.Settings.Enabled and On_Screen and Meter_Distance < ESP.Settings.Maximal_Distance and Good then
                     local Highlight_Settings = ESP.Settings.Highlight
                     local Is_Highlighted = Highlight_Settings.Enabled and Highlight_Settings.Target == self.Object or false
                     local Highlight_Color = Highlight_Settings.Color
