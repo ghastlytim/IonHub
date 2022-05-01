@@ -94,20 +94,32 @@ local Get_Tool = function(Player)
     return "Hands"
 end
 
+local Ignore_Table = {Players.LocalPlayer.Character, Camera}
+for _, Part in pairs(Workspace:GetDescendants()) do
+    pcall(function()
+        if Part.CanCollide == false or Part.Transparency == 1 then
+            table.insert(Ignore_Table, Part)
+        end
+    end)
+end
+
 local Check_Visible = function(Target)
     if ESP.Overrides.Check_Visible ~= nil then
         return ESP.Overrides.Check_Visible(Player)
     end
     local RaycastParams_ = RaycastParams.new();
     RaycastParams_.FilterType = Enum.RaycastFilterType.Blacklist;
-    local To_Ignore = {Players.LocalPlayer.Character, Camera};
-    RaycastParams_.FilterDescendantsInstances = To_Ignore;
+    RaycastParams_.FilterDescendantsInstances = Ignore_Table;
     RaycastParams_.IgnoreWater = true;
     local Result = Workspace:Raycast(Camera.CFrame.p, (Target.Position - Camera.CFrame.p).unit * 10000, RaycastParams_)
-    if Result then 
+    if Result then
         local Instance_ = Result.Instance
         if Instance_:IsDescendantOf(Target.Parent) then
             return true
+        else
+            if Instance_.CanCollide == false or Instance_.Transparency == 1 then
+                table.insert(Ignore_Table, Instance_)
+            end
         end
     end
     return false
