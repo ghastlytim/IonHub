@@ -113,8 +113,10 @@ local Check_Visible = function(Target)
     end
     local RaycastParams_ = RaycastParams.new();
     RaycastParams_.FilterType = Enum.RaycastFilterType.Blacklist;
-    table.insert(Ignore_Table, Players.LocalPlayer.Character)
-    RaycastParams_.FilterDescendantsInstances = Ignore_Table;
+    local Final_Table = {}
+    table.insert(Final_Table, Ignore_Table)
+    table.insert(Final_Table, Players.LocalPlayer.Character)
+    RaycastParams_.FilterDescendantsInstances = Final_Table;
     RaycastParams_.IgnoreWater = true;
     local Result = Workspace:Raycast(Camera.CFrame.p, (Target.Position - Camera.CFrame.p).unit * 10000, RaycastParams_)
     if Result then
