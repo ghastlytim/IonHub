@@ -335,6 +335,7 @@ do -- Player Metatable
                     -- Chams
                     local Chams_Settings = ESP.Settings.Chams
                     local Chams_Enabled = Chams_Settings.Enabled
+                    Chams.Parent = Character
                     Chams.Enabled = Chams_Enabled
                     Chams.Adornee = Chams_Enabled and Character or nil
                     if Chams_Enabled then
@@ -343,7 +344,6 @@ do -- Player Metatable
                         Chams.FillTransparency = Chams_Settings.Transparency
                         Chams.OutlineTransparency = Chams_Settings.OutlineTransparency
                     end
-                    print(Chams.Parent, Chams:GetFullName())
                 else
                     for Index, Drawing in pairs(self.Components) do
                         if tostring(Index) == "Chams" then
