@@ -99,7 +99,9 @@ for _, Part in pairs(Workspace:GetDescendants()) do
     pcall(function()
         if Part.CanCollide == false or Part.Transparency == 1 then
             if Part.Name ~= "Head" and Part.Name ~= "HumanoidRootPart" then
-                table.insert(Ignore_Table, Part)
+                if not table.find(Ignore_Table, Part) then
+                    table.insert(Ignore_Table, Part)
+                end
             end
         end
     end)
@@ -122,7 +124,9 @@ local Check_Visible = function(Target)
         else
             if Instance_.CanCollide == false or Instance_.Transparency == 1 then
                 if Instance_.Name ~= "Head" and Instance_.Name ~= "HumanoidRootPart" then
-                    table.insert(Ignore_Table, Instance_)
+                    if not table.find(Ignore_Table, Instance_) then
+                        table.insert(Ignore_Table, Instance_)
+                    end
                 end
             end
         end
