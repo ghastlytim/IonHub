@@ -425,7 +425,7 @@ do -- Player Metatable
                     -- Chams
                     local Chams_Settings = ESP.Settings.Chams
                     local Is_Visible = false
-                    if Check_Visible(Head) or Check_Visible(HumanoidRootPart) then
+                    if ESP:Check_Visible(Head) or ESP:Check_Visible(HumanoidRootPart) then
                         Is_Visible = true
                     end
                     local Chams_Enabled = Chams_Settings.Enabled
