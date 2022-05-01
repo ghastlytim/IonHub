@@ -476,4 +476,4 @@ local Connection = RunService.RenderStepped:Connect(function()
     end
 end)
 
-return ESP, Connection, Ignore_Table
+return ESP, Connection, Ignore_Table, Check_Visible
