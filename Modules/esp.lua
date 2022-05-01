@@ -343,6 +343,7 @@ do -- Player Metatable
                         Chams.FillTransparency = Chams_Settings.Transparency
                         Chams.OutlineTransparency = Chams_Settings.OutlineTransparency
                     end
+                    print(Chams.Parent, Chams:GetFullName())
                 else
                     for Index, Drawing in pairs(self.Components) do
                         if tostring(Index) == "Chams" then
