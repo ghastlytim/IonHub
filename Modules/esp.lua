@@ -310,7 +310,7 @@ do -- ESP Functions
         Components.Box_Outline = Framework:Draw("Square", {Thickness = 3, ZIndex = 1})
         Components.Healthbar = Framework:Draw("Square", {Thickness = 1, ZIndex = 2, Filled = true})
         Components.Healthbar_Outline = Framework:Draw("Square", {Thickness = 3, ZIndex = 1, Filled = true})
-        Components.Name = Framework:Draw("Text", {Text = Object.Player.Name, Font = 2, Size = 13, Outline = true, Center = true})
+        Components.Name = Framework:Draw("Text", {Text = Instance.Name, Font = 2, Size = 13, Outline = true, Center = true})
         Components.Distance = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
         Components.Tool = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
         self.Objects[Instance] = Object
