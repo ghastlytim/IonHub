@@ -66,6 +66,7 @@ local ESP = {
     Objects = {},
     Overrides = {}
 }
+ESP.__index = ESP
 
 function ESP:GetObject(Object)
     return self.Objects[Object]
