@@ -51,6 +51,7 @@ local ESP = {
     Settings = {
         Enabled = false,
         Team_Check = false,
+        Improved_Visible_Check = true,
         Maximal_Distance = 1000,
         Highlight = {Enabled = false, Color = Color3.new(1, 0, 0), Target = ""},
         Box = {Enabled = false, Color = Color3.new(1, 1, 1), Transparency = 0},
@@ -74,25 +75,25 @@ function ESP:Toggle(State)
     self.Settings.Enabled = State
 end
 
-local Get_Team = function(Player)
-    if ESP.Overrides.Get_Team ~= nil then
-        return ESP.Overrides.Get_Team(Player)
+function ESP:Get_Team(Player)
+    if self.Overrides.Get_Team ~= nil then
+        return self.Overrides.Get_Team(Player)
     end
     return Player.Team
 end
 
-local Get_Character = function(Player)
+function ESP:Get_Character(Player)
     if ESP.Overrides.Get_Character ~= nil then
         return ESP.Overrides.Get_Character(Player)
     end
     return Player.Character
 end
 
-local Get_Tool = function(Player)
-    if ESP.Overrides.Get_Tool ~= nil then
-        return ESP.Overrides.Get_Tool(Player)
+function ESP:Get_Tool(Player)
+    if self.Overrides.Get_Tool ~= nil then
+        return self.Overrides.Get_Tool(Player)
     end
-    local Character = Get_Character(Player)
+    local Character = self:Get_Character(Player)
     if Character then
         local Tool = Character:FindFirstChildOfClass("Tool")
         if Tool then
@@ -100,6 +101,20 @@ local Get_Tool = function(Player)
         end
     end
     return "Hands"
+end
+
+function ESP:Get_Health(Player)
+    if self.Overrides.Get_Character ~= nil then
+        return self.Overrides.Get_Health(Player)
+    end
+    local Character = self:Get_Character(Player)
+    if Character then
+        local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+        if Humanoid then
+            return Humanoid.Health
+        end
+    end
+    return 100
 end
 
 local Passed = false
@@ -120,9 +135,9 @@ local function Pass_Through(From, Target, RaycastParams_, Ignore_Table)
     end
 end
 
-local Check_Visible = function(Target)
-    if ESP.Overrides.Check_Visible ~= nil then
-        return ESP.Overrides.Check_Visible(Player)
+function ESP:Check_Visible(Target)
+    if self.Overrides.Check_Visible ~= nil then
+        return self.Overrides.Check_Visible(Player)
     end
     local RaycastParams_ = RaycastParams.new();
     RaycastParams_.FilterType = Enum.RaycastFilterType.Blacklist;
@@ -135,7 +150,7 @@ local Check_Visible = function(Target)
         local Instance_ = Result.Instance
         if Instance_:IsDescendantOf(Target.Parent) then
             return true
-        elseif Instance_.CanCollide == false or Instance_.Transparency == 1 then
+        elseif ESP.Settings.Improved_Visible_Check and Instance_.CanCollide == false or Instance_.Transparency == 1 then
             if Instance_.Name ~= "Head" and Instance_.Name ~= "HumanoidRootPart" then
                 table.insert(Ignore_Table, Instance_)
                 Pass_Through(Result.Position, Target, RaycastParams_, Ignore_Table)
@@ -172,14 +187,14 @@ do -- Player Metatable
         if Box == nil or Box_Outline == nil or Healthbar == nil or Healthbar_Outline == nil or Name == nil or Distance == nil or Tool == nil or Health == nil or Chams == nil then
             self:Destroy()
         end
-        local Character = Get_Character(self.Player)
+        local Character = ESP:Get_Character(self.Player)
         if Character ~= nil then
             local Head, HumanoidRootPart, Humanoid = Character:FindFirstChild("Head"), Character:FindFirstChild("HumanoidRootPart"), Character:FindFirstChildOfClass("Humanoid")
             if not Humanoid then
                 self:Destroy()
                 return
             end
-            local Current_Health, Health_Maximum = Humanoid.Health, Humanoid.MaxHealth
+            local Current_Health, Health_Maximum = ESP:Get_Health(self.Player), Humanoid.MaxHealth
             if Head and HumanoidRootPart and Current_Health > 0 then
                 local Dimensions = Framework:Get_Bounding_Vectors(HumanoidRootPart)
                 local HRP_Position, On_Screen = Camera:WorldToViewportPoint(HumanoidRootPart.Position)
@@ -210,7 +225,7 @@ do -- Player Metatable
                 local Good = false
 
                 if ESP.Settings.Team_Check then
-                    if Get_Team(self.Player) ~= Get_Team(Players.LocalPlayer) then
+                    if ESP:Get_Team(self.Player) ~= ESP:Get_Team(Players.LocalPlayer) then
                         Good = true
                     end
                 else
@@ -371,7 +386,7 @@ do -- Player Metatable
                         end
                         Right_Offset = Right_Offset + 10
                     end
-                    Tool.Text = Get_Tool(self.Player)
+                    Tool.Text = ESP:Get_Tool(self.Player)
                     Tool.Color = Is_Highlighted and Highlight_Color or Tool_Settings.Color
                     Tool.OutlineColor = Tool_Settings.OutlineColor
                     Tool.Transparency = Framework:Drawing_Transparency(Tool_Settings.Transparency)
@@ -477,4 +492,4 @@ local Connection = RunService.RenderStepped:Connect(function()
     end
 end)
 
-return ESP, Connection, Ignore_Table, Check_Visible
+return ESP, Connection
