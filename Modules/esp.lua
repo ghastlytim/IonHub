@@ -493,4 +493,4 @@ local Connection = RunService.RenderStepped:Connect(function()
     end
 end)
 
-return ESP, Connection
+return ESP, Connection, Framework
