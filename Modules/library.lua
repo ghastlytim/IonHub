@@ -1301,7 +1301,7 @@ function library:init()
         return indicator
     end
 
-    function self.NewWindow(data)
+    function library:NewWindow(data)
         local window = {
             title = data.title or '',
             selectedTab = nil;
