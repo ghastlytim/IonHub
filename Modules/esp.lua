@@ -51,7 +51,7 @@ local ESP = {
     Settings = {
         Enabled = false,
         Team_Check = false,
-        Improved_Visible_Check = true,
+        Improved_Visible_Check = false,
         Maximal_Distance = 1000,
         Highlight = {Enabled = false, Color = Color3.new(1, 0, 0), Target = ""},
         Box = {Enabled = false, Color = Color3.new(1, 1, 1), Transparency = 0},
