@@ -49,7 +49,7 @@ end
 -- Main
 local ESP = {
     Settings = {
-        Enabled = false,
+        Enabled = true,
         Team_Check = false,
         Improved_Visible_Check = false,
         Maximal_Distance = 1000,
@@ -473,16 +473,17 @@ do  -- Object Metatable
         local Name = self.Components.Name
         local Addition = self.Components.Addition
         
-        local Vector, On_Screen = Camera:WorldToViewportPoint(self.PrimaryPart.Position + Vector3.new(0, 1.5, 0))
+        local Vector, On_Screen = Camera:WorldToViewportPoint(self.PrimaryPart.Position + Vector3.new(0, 1, 0))
 
         if ESP.Settings.Enabled and On_Screen then
             -- Name
+            Name.Text = self.Object.Name .. " [" .. math.floor(Vector.Z / 3.5714285714 + 0.5) .. "m]"
             Name.Position = Framework:V3_To_V2(Vector)
             Name.Visible = true
 
             -- Addition
             if self.Addition.Text ~= "" then
-                Addition.Position = Name.Position + Vector2.new(0, Name.TextBounds.Y + 1)
+                Addition.Position = Name.Position + Vector2.new(0, Name.TextBounds.Y)
                 Addition.Visible = true
             else
                 Addition.Visible = false
@@ -522,11 +523,11 @@ do -- ESP Functions
     function ESP:Object(Instance, Data)
         local Object = setmetatable({
             Object = Data.Object,
-            PrimaryPart = Data.PrimaryPart or Data.Object.PrimaryPart or Data.Object:FindFirstChildOfClass("BasePart")
+            PrimaryPart = Data.PrimaryPart or Data.Object.PrimaryPart or Data.Object:FindFirstChildOfClass("BasePart"),
             Addition = Data.Addition,
             Components = {},
             Type = Data.Type
-        }, Player_Metatable)
+        }, Object_Metatable)
         if self:GetObject(Instance) then
             self:GetObject(Instance):Destroy()
         end
@@ -534,26 +535,6 @@ do -- ESP Functions
         Components.Name = Framework:Draw("Text", {Text = Instance.Name, Color = Color3.new(1, 1, 1), Font = 2, Size = 13, Outline = true, Center = true})
         Components.Addition = Framework:Draw("Text", {Text = Object.Addition.Text, Color = Object.Addition.Color, Font = 2, Size = 13, Outline = true, Center = true})
         self.Objects[Instance] = Object
-        Utility:Connection(Object.Object:GetPropertyChangedSignal("Parent"), function()
-            if not Data.RenderInNil then
-                if Object.Object.Parent == nil then
-                    Object:Destroy()
-                end
-            end
-            if Data.DestroyOnAny then
-                Object:Destroy()
-            end
-        end)
-        Utility:Connection(Object.PrimaryPart:GetPropertyChangedSignal("Parent"), function()
-            if not Data.RenderInNil then
-                if Object.Object.Parent == nil then
-                    Object:Destroy()
-                end
-            end
-            if Data.DestroyOnAny then
-                Object:Destroy()
-            end
-        end)
         return Object
     end
 end
