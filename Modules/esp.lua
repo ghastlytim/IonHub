@@ -548,9 +548,10 @@ do -- ESP Functions
         if Addition.Color == nil then
             Addition.Color = Addition.color or Addition.col or Addition.Col or Color3.new(1, 1, 1)
         end
+        local obj = Data.Object or Data.object or Data.Obj or Data.obj or Instance
         local Object = setmetatable({
-            Object = Data.Object or Data.object or Data.Obj or Data.obj or Instance,
-            PrimaryPart = Data.PrimaryPart or Data.primarypart or Data.pp or Data.PP or Data.primpart or Data.PrimPart or Data.PPart or Data.ppart or Data.pPart or Data.Ppart or Data.Object.PrimaryPart or Data.Object:FindFirstChildOfClass("BasePart"),
+            Object = obj,
+            PrimaryPart = Data.PrimaryPart or Data.primarypart or Data.pp or Data.PP or Data.primpart or Data.PrimPart or Data.PPart or Data.ppart or Data.pPart or Data.Ppart or obj.PrimaryPart or obj:FindFirstChildOfClass("BasePart"),
             Addition = Addition,
             Components = {},
             Type = Data.Type,
