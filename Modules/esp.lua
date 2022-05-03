@@ -540,7 +540,7 @@ do -- ESP Functions
             self:GetObject(Instance):Destroy()
         end
         local Components = Object.Components
-        Components.Name = Framework:Draw("Text", {Text = Instance.Name, Color = Color3.new(1, 1, 1), Font = 2, Size = 13, Outline = true, Center = true})
+        Components.Name = Framework:Draw("Text", {Text = (Data.Name ~= nil and Data.Name) or Instance.Name, Color = Color3.new(1, 1, 1), Font = 2, Size = 13, Outline = true, Center = true})
         Components.Addition = Framework:Draw("Text", {Text = Object.Addition.Text, Color = Object.Addition.Color, Font = 2, Size = 13, Outline = true, Center = true})
         self.Objects[Instance] = Object
         return Object
