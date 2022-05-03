@@ -506,9 +506,18 @@ do  -- Object Metatable
 end
 do -- ESP Functions
     function ESP:Player(Instance, Data)
+        if Instance == nil then
+            return warn("error: function ESP.Player argument #1 expected Player, got nil")
+        end
+        if Data == nil or type(Data) ~= "table" then
+            Data = {
+                Object = self:Get_Character(Instance),
+                Player = Instance
+            }
+        end
         local Object = setmetatable({
-            Object = Data.Object,
-            Player = Data.Player,
+            Object = Data.Object or Data.object or Data.Obj or Data.obj or self:Get_Character(Instance),
+            Player = Data.Player or Data.player or Data.Plr or Data.plr or Data.Ply or Data.ply or Instance,
             Components = {},
             Type = "Player"
         }, Player_Metatable)
@@ -529,14 +538,27 @@ do -- ESP Functions
         return Object
     end
     function ESP:Object(Instance, Data)
+        if Data == nil or type(Data) ~= "table" then
+            return warn("error: function ESP.Object argument #2 expected table, got nil")
+        end
+        local Addition = Data.Addition or Data.addition or Data.add or Data.Add or {}
+        if Addition.Text == nil then
+            Addition.Text = Addition.text or ""
+        end
+        if Addition.Color == nil then
+            Addition.Color = Addition.color or Addition.col or Addition.Col or Color3.new(1, 1, 1)
+        end
         local Object = setmetatable({
-            Object = Data.Object,
-            PrimaryPart = Data.PrimaryPart or Data.Object.PrimaryPart or Data.Object:FindFirstChildOfClass("BasePart"),
-            Addition = Data.Addition,
+            Object = Data.Object or Data.object or Data.Obj or Data.obj or Instance,
+            PrimaryPart = Data.PrimaryPart or Data.primarypart or Data.pp or Data.PP or Data.primpart or Data.PrimPart or Data.PPart or Data.ppart or Data.pPart or Data.Ppart or Data.Object.PrimaryPart or Data.Object:FindFirstChildOfClass("BasePart"),
+            Addition = Addition,
             Components = {},
             Type = Data.Type,
             Name = (Data.Name ~= nil and Data.Name) or Instance.Name
         }, Object_Metatable)
+        if Object.PrimaryPart == nil then
+            return warn("error: function ESP.Object Object.PrimaryPart is nil")
+        end
         if self:GetObject(Instance) then
             self:GetObject(Instance):Destroy()
         end
