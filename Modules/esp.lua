@@ -458,6 +458,43 @@ do -- Player Metatable
         end
     end
 end
+local Object_Metatable = {}
+do  -- Object Metatable
+    Object_Metatable.__index = Object_Metatable
+    function Object_Metatable:Destroy()
+        for Index, Component in pairs(self.Components) do
+            Component.Visible = false
+            Component:Remove()
+            self.Components[Index] = nil
+        end
+        ESP.Objects[self.Object] = nil
+    end
+    function Object_Metatable:Update()
+        local Name = self.Components.Name
+        local Addition = self.Components.Addition
+        
+        local Vector, On_Screen = Camera:WorldToViewportPoint(self.PrimaryPart.Position + Vector3.new(0, 1.5, 0))
+
+        if ESP.Settings.Enabled and On_Screen then
+            -- Name
+            Name.Position = Framework:V3_To_V2(Vector)
+            Name.Visible = true
+
+            -- Addition
+            if self.Addition.Text ~= "" then
+                Addition.Position = Name.Position + Vector2.new(0, Name.TextBounds.Y + 1)
+                Addition.Visible = true
+            else
+                Addition.Visible = false
+            end
+        else
+            for Index, Drawing in pairs(self.Components) do
+                Drawing.Visible = false
+            end
+            return
+        end
+    end
+end
 do -- ESP Functions
     function ESP:Player(Instance, Data)
         local Object = setmetatable({
@@ -482,8 +519,42 @@ do -- ESP Functions
         self.Objects[Instance] = Object
         return Object
     end
-    function ESP:Object(Data)
-        
+    function ESP:Object(Instance, Data)
+        local Object = setmetatable({
+            Object = Data.Object,
+            PrimaryPart = Data.PrimaryPart or Data.Object.PrimaryPart or Data.Object:FindFirstChildOfClass("BasePart")
+            Addition = Data.Addition,
+            Components = {},
+            Type = Data.Type
+        }, Player_Metatable)
+        if self:GetObject(Instance) then
+            self:GetObject(Instance):Destroy()
+        end
+        local Components = Object.Components
+        Components.Name = Framework:Draw("Text", {Text = Instance.Name, Color = Color3.new(1, 1, 1), Font = 2, Size = 13, Outline = true, Center = true})
+        Components.Addition = Framework:Draw("Text", {Text = Object.Addition.Text, Color = Object.Addition.Color, Font = 2, Size = 13, Outline = true, Center = true})
+        self.Objects[Instance] = Object
+        Utility:Connection(Object.Object:GetPropertyChangedSignal("Parent"), function()
+            if not Data.RenderInNil then
+                if Object.Object.Parent == nil then
+                    Object:Destroy()
+                end
+            end
+            if Data.DestroyOnAny then
+                Object:Destroy()
+            end
+        end)
+        Utility:Connection(Object.PrimaryPart:GetPropertyChangedSignal("Parent"), function()
+            if not Data.RenderInNil then
+                if Object.Object.Parent == nil then
+                    Object:Destroy()
+                end
+            end
+            if Data.DestroyOnAny then
+                Object:Destroy()
+            end
+        end)
+        return Object
     end
 end
 
