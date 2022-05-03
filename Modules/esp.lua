@@ -185,7 +185,7 @@ do -- Player Metatable
         local Distance = self.Components.Distance
         local Tool = self.Components.Tool
         local Health = self.Components.Health
-        local Chams = self.Components.Chams
+        local Chams = true--self.Components.Chams
         if Box == nil or Box_Outline == nil or Healthbar == nil or Healthbar_Outline == nil or Name == nil or Distance == nil or Tool == nil or Health == nil or Chams == nil then
             self:Destroy()
         end
@@ -425,6 +425,7 @@ do -- Player Metatable
                     Health.Visible = Health_Settings.Enabled
 
                     -- Chams
+                    --[[
                     local Chams_Settings = ESP.Settings.Chams
                     local Is_Visible = false
                     if ESP:Check_Visible(Head) or ESP:Check_Visible(HumanoidRootPart) then
@@ -439,6 +440,7 @@ do -- Player Metatable
                         Chams.FillTransparency = Chams_Settings.Transparency
                         Chams.OutlineTransparency = Chams_Settings.OutlineTransparency
                     end
+                    --]]
                 else
                     for Index, Drawing in pairs(self.Components) do
                         if tostring(Index) == "Chams" then
@@ -533,7 +535,7 @@ do -- ESP Functions
         Components.Distance = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
         Components.Tool = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
         Components.Health = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
-        Components.Chams = Framework:Instance("Highlight", {Parent = CoreGui, DepthMode = Enum.HighlightDepthMode.AlwaysOnTop})
+        --Components.Chams = Framework:Instance("Highlight", {Parent = CoreGui, DepthMode = Enum.HighlightDepthMode.AlwaysOnTop})
         self.Objects[Instance] = Object
         return Object
     end
