@@ -485,7 +485,7 @@ do  -- Object Metatable
 
         if On_Screen then
             -- Name
-            Name.Text = self.Object.Name .. " [" .. math.floor(Vector.Z / 3.5714285714 + 0.5) .. "m]"
+            Name.Text = self.Name .. " [" .. math.floor(Vector.Z / 3.5714285714 + 0.5) .. "m]"
             Name.Position = Framework:V3_To_V2(Vector)
             Name.Visible = true
 
@@ -534,13 +534,14 @@ do -- ESP Functions
             PrimaryPart = Data.PrimaryPart or Data.Object.PrimaryPart or Data.Object:FindFirstChildOfClass("BasePart"),
             Addition = Data.Addition,
             Components = {},
-            Type = Data.Type
+            Type = Data.Type,
+            Name = (Data.Name ~= nil and Data.Name) or Instance.Name
         }, Object_Metatable)
         if self:GetObject(Instance) then
             self:GetObject(Instance):Destroy()
         end
         local Components = Object.Components
-        Components.Name = Framework:Draw("Text", {Text = (Data.Name ~= nil and Data.Name) or Instance.Name, Color = Color3.new(1, 1, 1), Font = 2, Size = 13, Outline = true, Center = true})
+        Components.Name = Framework:Draw("Text", {Text = Object.Name, Color = Color3.new(1, 1, 1), Font = 2, Size = 13, Outline = true, Center = true})
         Components.Addition = Framework:Draw("Text", {Text = Object.Addition.Text, Color = Object.Addition.Color, Font = 2, Size = 13, Outline = true, Center = true})
         self.Objects[Instance] = Object
         return Object
