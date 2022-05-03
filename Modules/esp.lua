@@ -49,7 +49,8 @@ end
 -- Main
 local ESP = {
     Settings = {
-        Enabled = true,
+        Enabled = false,
+        Objects_Enabled = false,
         Team_Check = false,
         Improved_Visible_Check = false,
         Maximal_Distance = 1000,
@@ -470,12 +471,14 @@ do  -- Object Metatable
         ESP.Objects[self.Object] = nil
     end
     function Object_Metatable:Update()
+        if not ESP.Settings.Objects_Enabled then self:Destroy() end
+        
         local Name = self.Components.Name
         local Addition = self.Components.Addition
         
         local Vector, On_Screen = Camera:WorldToViewportPoint(self.PrimaryPart.Position + Vector3.new(0, 1, 0))
 
-        if ESP.Settings.Enabled and On_Screen then
+        if On_Screen then
             -- Name
             Name.Text = self.Object.Name .. " [" .. math.floor(Vector.Z / 3.5714285714 + 0.5) .. "m]"
             Name.Position = Framework:V3_To_V2(Vector)
