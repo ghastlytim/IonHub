@@ -471,8 +471,13 @@ do  -- Object Metatable
         ESP.Objects[self.Object] = nil
     end
     function Object_Metatable:Update()
-        if not ESP.Settings.Objects_Enabled then self:Destroy() end
-        
+        if not ESP.Settings.Objects_Enabled then
+            for Index, Drawing in pairs(self.Components) do
+                Drawing.Visible = false
+            end
+            return
+        end
+
         local Name = self.Components.Name
         local Addition = self.Components.Addition
         
