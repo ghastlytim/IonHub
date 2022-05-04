@@ -49,19 +49,20 @@ end
 -- Main
 local ESP = {
     Settings = {
-        Enabled = false,
+        Enabled = true,
+        Objects_Enabled = false,
         Team_Check = false,
         Improved_Visible_Check = false,
-        Maximal_Distance = 1000,
-        Highlight = {Enabled = false, Color = Color3.new(1, 0, 0), Target = ""},
-        Box = {Enabled = false, Color = Color3.new(1, 1, 1), Transparency = 0},
-        Box_Outline = {Enabled = false, Color = Color3.new(0, 0, 0), Transparency = 0, Outline_Size = 1},
-        Healthbar = {Enabled = false, Position = "Left", Color = Color3.new(1, 1, 1), Color_Lerp = Color3.fromRGB(40, 252, 3)},
-        Name = {Enabled = false, Position = "Top", Color = Color3.new(1, 1, 1), Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
-        Distance = {Enabled = false, Position = "Bottom", Color = Color3.new(1, 1, 1), Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
-        Tool = {Enabled = false, Position = "Right", Color = Color3.new(1, 1, 1), Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
-        Health = {Enabled = false, Position = "Right", Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
-        Chams = {Enabled = false, Color = Color3.new(1, 1, 1), Mode = "Visible", OutlineColor = Color3.new(0, 0, 0), Transparency = 0.5, OutlineTransparency = 0}
+        Maximal_Distance = 5000,
+        Highlight = {Enabled = true, Color = Color3.new(1, 0, 0), Target = ""},
+        Box = {Enabled = true, Color = Color3.new(1, 1, 1), Transparency = 0},
+        Box_Outline = {Enabled = true, Color = Color3.new(0, 0, 0), Transparency = 0, Outline_Size = 1},
+        Healthbar = {Enabled = true, Position = "Left", Color = Color3.new(1, 1, 1), Color_Lerp = Color3.fromRGB(40, 252, 3)},
+        Name = {Enabled = true, Position = "Top", Color = Color3.new(1, 1, 1), Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
+        Distance = {Enabled = true, Position = "Bottom", Color = Color3.new(1, 1, 1), Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
+        Tool = {Enabled = true, Position = "Right", Color = Color3.new(1, 1, 1), Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
+        Health = {Enabled = true, Position = "Right", Transparency = 0, OutlineColor = Color3.new(0, 0, 0)},
+        Chams = {Enabled = true, Color = Color3.new(1, 1, 1), Mode = "Visible", OutlineColor = Color3.new(0, 0, 0), Transparency = 0.5, OutlineTransparency = 0}
     },
     Objects = {},
     Overrides = {}
@@ -184,7 +185,7 @@ do -- Player Metatable
         local Distance = self.Components.Distance
         local Tool = self.Components.Tool
         local Health = self.Components.Health
-        local Chams = self.Components.Chams
+        local Chams = true--self.Components.Chams
         if Box == nil or Box_Outline == nil or Healthbar == nil or Healthbar_Outline == nil or Name == nil or Distance == nil or Tool == nil or Health == nil or Chams == nil then
             self:Destroy()
         end
@@ -424,6 +425,7 @@ do -- Player Metatable
                     Health.Visible = Health_Settings.Enabled
 
                     -- Chams
+                    --[[
                     local Chams_Settings = ESP.Settings.Chams
                     local Is_Visible = false
                     if ESP:Check_Visible(Head) or ESP:Check_Visible(HumanoidRootPart) then
@@ -438,6 +440,7 @@ do -- Player Metatable
                         Chams.FillTransparency = Chams_Settings.Transparency
                         Chams.OutlineTransparency = Chams_Settings.OutlineTransparency
                     end
+                    --]]
                 else
                     for Index, Drawing in pairs(self.Components) do
                         if tostring(Index) == "Chams" then
@@ -458,11 +461,65 @@ do -- Player Metatable
         end
     end
 end
+local Object_Metatable = {}
+do  -- Object Metatable
+    Object_Metatable.__index = Object_Metatable
+    function Object_Metatable:Destroy()
+        for Index, Component in pairs(self.Components) do
+            Component.Visible = false
+            Component:Remove()
+            self.Components[Index] = nil
+        end
+        ESP.Objects[self.Object] = nil
+    end
+    function Object_Metatable:Update()
+        if not ESP.Settings.Objects_Enabled then
+            for Index, Drawing in pairs(self.Components) do
+                Drawing.Visible = false
+            end
+            return
+        end
+
+        local Name = self.Components.Name
+        local Addition = self.Components.Addition
+        
+        local Vector, On_Screen = Camera:WorldToViewportPoint(self.PrimaryPart.Position + Vector3.new(0, 1, 0))
+
+        if On_Screen then
+            -- Name
+            Name.Text = self.Name .. " [" .. math.floor(Vector.Z / 3.5714285714 + 0.5) .. "m]"
+            Name.Position = Framework:V3_To_V2(Vector)
+            Name.Visible = true
+
+            -- Addition
+            if self.Addition.Text ~= "" then
+                Addition.Position = Name.Position + Vector2.new(0, Name.TextBounds.Y)
+                Addition.Visible = true
+            else
+                Addition.Visible = false
+            end
+        else
+            for Index, Drawing in pairs(self.Components) do
+                Drawing.Visible = false
+            end
+            return
+        end
+    end
+end
 do -- ESP Functions
     function ESP:Player(Instance, Data)
+        if Instance == nil then
+            return warn("error: function ESP.Player argument #1 expected Player, got nil")
+        end
+        if Data == nil or type(Data) ~= "table" then
+            Data = {
+                Object = self:Get_Character(Instance),
+                Player = Instance
+            }
+        end
         local Object = setmetatable({
-            Object = Data.Object,
-            Player = Data.Player,
+            Object = Data.Object or Data.object or Data.Obj or Data.obj or self:Get_Character(Instance),
+            Player = Data.Player or Data.player or Data.Plr or Data.plr or Data.Ply or Data.ply or Instance,
             Components = {},
             Type = "Player"
         }, Player_Metatable)
@@ -478,12 +535,41 @@ do -- ESP Functions
         Components.Distance = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
         Components.Tool = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
         Components.Health = Framework:Draw("Text", {Font = 2, Size = 13, Outline = true, Center = true})
-        Components.Chams = Framework:Instance("Highlight", {Parent = CoreGui, DepthMode = Enum.HighlightDepthMode.AlwaysOnTop})
+        --Components.Chams = Framework:Instance("Highlight", {Parent = CoreGui, DepthMode = Enum.HighlightDepthMode.AlwaysOnTop})
         self.Objects[Instance] = Object
         return Object
     end
-    function ESP:Object(Data)
-        
+    function ESP:Object(Instance, Data)
+        if Data == nil or type(Data) ~= "table" then
+            return warn("error: function ESP.Object argument #2 expected table, got nil")
+        end
+        local Addition = Data.Addition or Data.addition or Data.add or Data.Add or {}
+        if Addition.Text == nil then
+            Addition.Text = Addition.text or ""
+        end
+        if Addition.Color == nil then
+            Addition.Color = Addition.color or Addition.col or Addition.Col or Color3.new(1, 1, 1)
+        end
+        local obj = Data.Object or Data.object or Data.Obj or Data.obj or Instance
+        local Object = setmetatable({
+            Object = obj,
+            PrimaryPart = Data.PrimaryPart or Data.primarypart or Data.pp or Data.PP or Data.primpart or Data.PrimPart or Data.PPart or Data.ppart or Data.pPart or Data.Ppart or obj.PrimaryPart or obj:FindFirstChildOfClass("BasePart"),
+            Addition = Addition,
+            Components = {},
+            Type = Data.Type,
+            Name = (Data.Name ~= nil and Data.Name) or Instance.Name
+        }, Object_Metatable)
+        if Object.PrimaryPart == nil then
+            return warn("error: function ESP.Object Object.PrimaryPart is nil")
+        end
+        if self:GetObject(Instance) then
+            self:GetObject(Instance):Destroy()
+        end
+        local Components = Object.Components
+        Components.Name = Framework:Draw("Text", {Text = Object.Name, Color = Color3.new(1, 1, 1), Font = 2, Size = 13, Outline = true, Center = true})
+        Components.Addition = Framework:Draw("Text", {Text = Object.Addition.Text, Color = Object.Addition.Color, Font = 2, Size = 13, Outline = true, Center = true})
+        self.Objects[Instance] = Object
+        return Object
     end
 end
 
